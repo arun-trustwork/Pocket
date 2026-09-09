@@ -1,4 +1,14 @@
 -- schema.sql
+PRAGMA foreign_keys = OFF;
+DROP TABLE IF EXISTS business_contacts;
+DROP TABLE IF EXISTS project_contacts;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS businesses;
+DROP TABLE IF EXISTS contact_tags;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS contacts_fts;
+DROP TABLE IF EXISTS contacts;
+PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS contacts (
     id TEXT PRIMARY KEY,
@@ -9,7 +19,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     email TEXT,
     website TEXT,
     address TEXT,
-    type TEXT CHECK(type IN ('vendor', 'customer', 'both', 'none')) DEFAULT 'none',
+    type TEXT CHECK(type IN ('vendor', 'consumer', 'both', 'none')) DEFAULT 'none',
     raw_json TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -30,22 +40,16 @@ CREATE TABLE IF NOT EXISTS contact_tags (
 CREATE TABLE IF NOT EXISTS businesses (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    vertical_label TEXT
+    vertical_label TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS projects (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS business_contacts (
     business_id TEXT,
-    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS project_contacts (
-    project_id TEXT,
     contact_id TEXT,
     role TEXT,
-    PRIMARY KEY (project_id, contact_id),
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    PRIMARY KEY (business_id, contact_id),
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE,
     FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
 );
 

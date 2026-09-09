@@ -1,6 +1,7 @@
 package com.cardvault.app.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -29,10 +30,14 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            Column {
-                TopAppBar(title = { Text("CardVault") })
-                FilterMenu(selected = scope, onSelect = { scope = it })
-            }
+            TopAppBar(
+                title = { 
+                    Text(if (scope == FilterScope.ALL) "CardVault" else "CardVault: ${scope.name.lowercase().replaceFirstChar(Char::uppercase)}") 
+                },
+                actions = {
+                    FilterMenu(selected = scope, onSelect = { scope = it })
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onScanClick) {
@@ -77,4 +82,4 @@ fun HomeScreen(
 
 // Small helper so ListItem stays readable above without importing clickable inline each time.
 private fun Modifier.clickableRow(onClick: () -> Unit): Modifier =
-    this.then(androidx.compose.foundation.clickable(onClick = onClick))
+    this.clickable(onClick = onClick)

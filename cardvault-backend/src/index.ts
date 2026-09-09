@@ -159,4 +159,56 @@ app.get('/api/contacts', async (c) => {
   }
 });
 
+app.post('/api/businesses', async (c) => {
+  try {
+    const business = await c.req.json();
+    const id = crypto.randomUUID();
+    
+    await c.env.DB.prepare(`
+        INSERT INTO businesses (id, name, vertical_label)
+        VALUES (?, ?, ?)
+    `).bind(
+        id, 
+        business.name, 
+        business.vertical || 'Unspecified'
+    ).run();
+
+    return c.json({ success: true, id });
+  } catch (error) {
+    console.error('Error saving business:', error);
+    return c.json({ error: 'Failed to save business' }, 500);
+  }
+});
+
+app.get('/api/businesses', async (c) => {
+  try {
+    const { results } = await c.env.DB.prepare(`SELECT * FROM businesses ORDER BY created_at DESC`).all();
+    return c.json(results);
+  } catch (error) {
+    console.error('Error fetching businesses:', error);
+    return c.json({ error: 'Failed to fetch businesses' }, 500);
+  }
+});
+
+app.post('/api/business-contacts', async (c) => {
+  try {
+    const { businessId, contactId, role } = await c.req.json();
+    
+    await c.env.DB.prepare(`
+        INSERT INTO business_contacts (business_id, contact_id, role)
+        VALUES (?, ?, ?)
+        ON CONFLICT(business_id, contact_id) DO UPDATE SET role=excluded.role
+    `).bind(
+        businessId, 
+        contactId, 
+        role || 'OTHER'
+    ).run();
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error linking contact to business:', error);
+    return c.json({ error: 'Failed to link contact' }, 500);
+  }
+});
+
 export default app;

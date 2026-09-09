@@ -15,6 +15,7 @@ import com.cardvault.app.data.model.User
  * Shown to another CardVault user's scanner to add yourself to their DB instantly —
  * no OCR needed, since the QR already carries structured data.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyCardScreen(user: User) {
     val payload = MyCardPayload(

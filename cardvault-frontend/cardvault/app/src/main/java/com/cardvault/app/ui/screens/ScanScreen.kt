@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
  * CameraX + ML Kit's barcode analyzer run on the same preview frame, so which path fires
  * depends on what's in frame — no separate "scan QR" mode needed.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
     repository: ContactRepository,

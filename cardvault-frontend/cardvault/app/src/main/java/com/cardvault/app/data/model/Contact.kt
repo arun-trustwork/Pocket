@@ -31,7 +31,7 @@ data class Contact(
     }.joinToString(" ").lowercase()
 }
 
-enum class ContactType { VENDOR, CUSTOMER, BOTH }
+enum class ContactType { VENDOR, CONSUMER, BOTH }
 
 enum class ContactSource { SCANNED_CARD, MYCARD_QR, MANUAL }
 
@@ -41,20 +41,13 @@ data class Business(
     val vertical: String // e.g. "Real Estate", "Construction", "Medical"
 )
 
-data class Project(
-    val id: String = UUID.randomUUID().toString(),
+enum class BusinessRole { SUPPLIER, CONTRACTOR, CONSUMER, CONSULTANT, OTHER }
+
+data class BusinessLink(
     val businessId: String,
-    val name: String, // e.g. "Arun's house construction"
-    val description: String? = null
-)
-
-enum class ProjectRole { SUPPLIER, CONTRACTOR, CUSTOMER, CONSULTANT, OTHER }
-
-data class ProjectLink(
-    val projectId: String,
     val contactId: String,
-    val role: ProjectRole
+    val role: BusinessRole
 )
 
 /** What the top filter menu switches between. */
-enum class FilterScope { ALL, VENDORS, CUSTOMERS, BUSINESSES, PROJECTS }
+enum class FilterScope { ALL, VENDORS, CONSUMERS, BUSINESSES }

@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.cardvault.app.data.repository.AuthRepository
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(auth: AuthRepository, onLoggedIn: () -> Unit) {
     var phone by remember { mutableStateOf("") }

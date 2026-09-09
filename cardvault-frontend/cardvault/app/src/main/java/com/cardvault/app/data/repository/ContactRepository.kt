@@ -13,8 +13,8 @@ interface ContactRepository {
     suspend fun deleteContact(id: String)
 
     suspend fun listBusinesses(): List<Business>
-    suspend fun listProjects(businessId: String? = null): List<Project>
-    suspend fun linkContactToProject(link: ProjectLink)
+    suspend fun saveBusiness(business: Business)
+    suspend fun linkContactToBusiness(link: BusinessLink)
 
     /** Sends the captured image bytes to the Claude API extraction endpoint on your backend. */
     suspend fun extractContactFromImage(imageBytes: ByteArray): Contact
@@ -27,19 +27,18 @@ class InMemoryContactRepository : ContactRepository {
             phones = listOf("98450xxxxx"), type = ContactType.VENDOR,
             tags = listOf("Bulb supplier", "Mysore")),
         Contact(name = "Sunita Nair", company = "Nair Interiors",
-            phones = listOf("99001xxxxx"), type = ContactType.CUSTOMER,
+            phones = listOf("99001xxxxx"), type = ContactType.CONSUMER,
             tags = listOf("Bengaluru"))
     )
     private val businesses = mutableListOf(Business(name = "Arun Trustwork", vertical = "Real Estate"))
-    private val projects = mutableListOf(Project(businessId = businesses[0].id, name = "Arun's house construction"))
-    private val links = mutableListOf<ProjectLink>()
+    private val links = mutableListOf<BusinessLink>()
 
     override fun observeContacts(scope: FilterScope, query: String) =
         kotlinx.coroutines.flow.flow {
             val filtered = contacts.filter {
                 (scope == FilterScope.ALL ||
-                    (scope == FilterScope.VENDORS && it.type != ContactType.CUSTOMER) ||
-                    (scope == FilterScope.CUSTOMERS && it.type != ContactType.VENDOR)) &&
+                    (scope == FilterScope.VENDORS && it.type != ContactType.CONSUMER) ||
+                    (scope == FilterScope.CONSUMERS && it.type != ContactType.VENDOR)) &&
                     (query.isBlank() || it.searchText().contains(query.lowercase()))
             }
             emit(filtered)
@@ -52,9 +51,8 @@ class InMemoryContactRepository : ContactRepository {
 
     override suspend fun deleteContact(id: String) { contacts.removeAll { it.id == id } }
     override suspend fun listBusinesses() = businesses
-    override suspend fun listProjects(businessId: String?) =
-        projects.filter { businessId == null || it.businessId == businessId }
-    override suspend fun linkContactToProject(link: ProjectLink) { links.add(link) }
+    override suspend fun saveBusiness(business: Business) { businesses.add(business) }
+    override suspend fun linkContactToBusiness(link: BusinessLink) { links.add(link) }
 
     // TODO: replace with a call to your backend, which forwards the image to the Claude API
     // (see the vision-extraction prompt/schema discussed earlier) and returns parsed JSON.

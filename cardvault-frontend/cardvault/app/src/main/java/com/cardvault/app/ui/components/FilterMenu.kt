@@ -1,15 +1,16 @@
 package com.cardvault.app.ui.components
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.cardvault.app.data.model.FilterScope
 
 /**
- * The "menu kind option on top" — a horizontally scrollable filter row directly under the
- * search bar, letting the user switch between All / Vendors / Customers / Businesses / Projects.
+ * The filter dropdown menu located in the top app bar.
  */
 @Composable
 fun FilterMenu(
@@ -17,25 +18,34 @@ fun FilterMenu(
     onSelect: (FilterScope) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember { mutableStateOf(false) }
     val options = listOf(
-        FilterScope.ALL to "All",
+        FilterScope.ALL to "All Contacts",
         FilterScope.VENDORS to "Vendors",
-        FilterScope.CUSTOMERS to "Customers",
-        FilterScope.BUSINESSES to "Businesses",
-        FilterScope.PROJECTS to "Projects"
+        FilterScope.CONSUMERS to "Consumers",
+        FilterScope.BUSINESSES to "Businesses"
     )
 
-    ScrollableTabRow(
-        selectedTabIndex = options.indexOfFirst { it.first == selected }.coerceAtLeast(0),
-        edgePadding = 16.dp,
-        modifier = modifier
-    ) {
-        options.forEach { (scope, label) ->
-            Tab(
-                selected = scope == selected,
-                onClick = { onSelect(scope) },
-                text = { Text(label, modifier = Modifier.padding(vertical = 4.dp)) }
-            )
+    Box(modifier = modifier) {
+        IconButton(onClick = { expanded = true }) {
+            Icon(Icons.Filled.FilterList, contentDescription = "Filter")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { (scope, label) ->
+                DropdownMenuItem(
+                    text = { Text(label) },
+                    onClick = {
+                        onSelect(scope)
+                        expanded = false
+                    },
+                    trailingIcon = if (selected == scope) {
+                        { Icon(Icons.Filled.Check, contentDescription = null) }
+                    } else null
+                )
+            }
         }
     }
 }

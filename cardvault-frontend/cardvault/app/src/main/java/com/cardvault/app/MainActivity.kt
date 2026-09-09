@@ -7,12 +7,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import com.cardvault.app.data.repository.InMemoryContactRepository
+import com.cardvault.app.data.repository.CloudflareContactRepository
 import com.cardvault.app.ui.navigation.CardVaultApp
+import com.cardvault.app.data.model.User
+import com.cardvault.app.data.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-// TODO: replace with a real AuthRepository implementation (Firebase Phone Auth) once wired up.
-// A stub is intentionally omitted here so this won't compile silently against a fake logged-in
-// user — plug in FirebaseAuthRepository before running.
+import com.cardvault.app.data.model.SubscriptionStatus
+
+// Dummy Auth to get the app running without Firebase setup yet
+class DummyAuthRepository : AuthRepository {
+    override val currentUser: Flow<User?> = flowOf(User("1", "9999999999", name = "Test User"))
+    
+    override suspend fun requestPhoneNumberHint(): String? = null
+    override suspend fun sendOtp(phone: String) {}
+    override suspend fun verifyOtp(code: String): User = User("1", "9999999999", name = "Test User")
+    override suspend fun signOut() {}
+    override suspend fun refreshSubscriptionStatus(): SubscriptionStatus = SubscriptionStatus.ACTIVE
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,8 +34,8 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     CardVaultApp(
-                        auth = TODO("Inject FirebaseAuthRepository"),
-                        repository = InMemoryContactRepository()
+                        auth = DummyAuthRepository(),
+                        repository = CloudflareContactRepository()
                     )
                 }
             }
