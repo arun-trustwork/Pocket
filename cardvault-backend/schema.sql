@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS contacts (
     address TEXT,
     type TEXT CHECK(type IN ('vendor', 'consumer', 'both', 'none')) DEFAULT 'none',
     raw_json TEXT,
+    image_key TEXT,
+    face_image_key TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -58,7 +60,7 @@ CREATE VIRTUAL TABLE IF NOT EXISTS contacts_fts USING fts5(
     name,
     company,
     address,
-    tags,
+    raw_json,
     content='contacts',
     content_rowid='rowid'
 );
@@ -67,19 +69,19 @@ CREATE VIRTUAL TABLE IF NOT EXISTS contacts_fts USING fts5(
 -- Insert trigger
 CREATE TRIGGER IF NOT EXISTS contacts_ai AFTER INSERT ON contacts BEGIN
   INSERT INTO contacts_fts(rowid, name, company, address, tags)
-  VALUES (new.rowid, new.name, new.company, new.address, '');
+  VALUES (new.rowid, new.name, new.company, new.address, new.raw_json);
 END;
 
 -- Delete trigger
 CREATE TRIGGER IF NOT EXISTS contacts_ad AFTER DELETE ON contacts BEGIN
   INSERT INTO contacts_fts(contacts_fts, rowid, name, company, address, tags)
-  VALUES('delete', old.rowid, old.name, old.company, old.address, '');
+  VALUES('delete', old.rowid, old.name, old.company, old.address, old.raw_json);
 END;
 
 -- Update trigger
 CREATE TRIGGER IF NOT EXISTS contacts_au AFTER UPDATE ON contacts BEGIN
   INSERT INTO contacts_fts(contacts_fts, rowid, name, company, address, tags)
-  VALUES('delete', old.rowid, old.name, old.company, old.address, '');
+  VALUES('delete', old.rowid, old.name, old.company, old.address, old.raw_json);
   INSERT INTO contacts_fts(rowid, name, company, address, tags)
-  VALUES (new.rowid, new.name, new.company, new.address, '');
+  VALUES (new.rowid, new.name, new.company, new.address, new.raw_json);
 END;

@@ -11,6 +11,7 @@ database_id = "ab83b85a-45fb-41cf-9302-c87e71cfad48" # Replace with real ID from
 binding = "CARD_IMAGES"
 bucket_name = "cardvault-images"
 
-# Environment variables
-# [vars]
-# ANTHROPIC_API_KEY = "..." # Keep this as a secret: `npx wrangler secret put ANTHROPIC_API_KEY`
+# Environment variables / secrets
+# Set the Gemini key as a Cloudflare Worker secret (never commit it here):
+#   npx wrangler secret put GEMINI_API_KEY
+# Get a free key at: https://aistudio.google.com/app/apikey
