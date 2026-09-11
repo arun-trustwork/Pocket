@@ -16,6 +16,9 @@ interface ContactRepository {
     suspend fun saveBusiness(business: Business)
     suspend fun linkContactToBusiness(link: BusinessLink)
 
+    /** Sends raw OCR text to the backend for AI field classification (~400–800 ms). */
+    suspend fun extractContactFromText(rawText: String): Contact
+
     /** Sends the captured image bytes to the Claude API extraction endpoint on your backend. */
     suspend fun extractContactFromImage(imageBytes: ByteArray): Contact
 }
@@ -53,6 +56,10 @@ class InMemoryContactRepository : ContactRepository {
     override suspend fun listBusinesses() = businesses
     override suspend fun saveBusiness(business: Business) { businesses.add(business) }
     override suspend fun linkContactToBusiness(link: BusinessLink) { links.add(link) }
+
+    override suspend fun extractContactFromText(rawText: String): Contact {
+        throw NotImplementedError("Wire this to POST /api/extract-text on your backend")
+    }
 
     // TODO: replace with a call to your backend, which forwards the image to the Claude API
     // (see the vision-extraction prompt/schema discussed earlier) and returns parsed JSON.

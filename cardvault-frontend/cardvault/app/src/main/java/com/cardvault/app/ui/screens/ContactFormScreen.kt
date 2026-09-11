@@ -1,8 +1,6 @@
 package com.cardvault.app.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,18 +8,17 @@ import androidx.compose.ui.unit.dp
 import com.cardvault.app.data.model.Contact
 import com.cardvault.app.data.model.ContactType
 import com.cardvault.app.data.repository.ContactRepository
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ContactFormScreen(
     repository: ContactRepository,
     initial: Contact,
-    onSaved: () -> Unit
+    onSaved: () -> Unit,
+    vm: HomeViewModel          // injected from NavGraph so we can call optimistic save
 ) {
-    var contact by remember { mutableStateOf(initial) }
+    var contact  by remember { mutableStateOf(initial) }
     var tagInput by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
 
     Scaffold(topBar = { TopAppBar(title = { Text("Review details") }) }) { padding ->
         Column(
@@ -86,13 +83,12 @@ fun ContactFormScreen(
             )
 
             Spacer(Modifier.weight(1f))
+
+            // ── Optimistic save ───────────────────────────────────────────────
+            // vm.saveContact() patches the local cache and calls onSaved() immediately.
+            // The actual network POST happens in the background — the user never waits.
             Button(
-                onClick = {
-                    scope.launch {
-                        repository.saveContact(contact)
-                        onSaved()
-                    }
-                },
+                onClick = { vm.saveContact(contact, onSaved) },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Save contact") }
         }
